@@ -21,8 +21,105 @@ class GoogleSheetsApi {
   static final gsheets = GSheets(_credentials);
   static Worksheet? _worksheet;
 
+  static int transactnum = 0;
+  static List<List<dynamic>> currentTransact = [];
+  static bool loading = true;
+
   Future init() async {
     final ss = await gsheets.spreadsheet(spreadsheetid);
     _worksheet = ss.worksheetByTitle('Sheet1');
+    countrows();
+  }
+
+  static Future countrows() async {
+    while (
+        await _worksheet!.values.value(column: 1, row: transactnum + 1) != '') {
+      transactnum++;
+    }
+    loadTransactions();
+  }
+
+  static Future loadTransactions() async {
+    if (_worksheet == null) return;
+
+    for (int i = 1; i < transactnum; i++) {
+      final String transactionName =
+          await _worksheet!.values.value(column: 1, row: i + 1);
+      final String transactionAmount =
+          await _worksheet!.values.value(column: 2, row: i + 1);
+      final String transactionType =
+          await _worksheet!.values.value(column: 3, row: i + 1);
+      final String transactionDate =
+          await _worksheet!.values.value(column: 4, row: i + 1);
+      final String transactionMonth =
+          await _worksheet!.values.value(column: 5, row: i + 1);
+
+      if (currentTransact.length < transactnum) {
+        currentTransact.add([
+          transactionName,
+          transactionAmount,
+          transactionType,
+          transactionDate,
+          transactionMonth,
+        ]);
+      }
+    }
+    print(currentTransact);
+    // this will stop the circular loading indicator
+    loading = false;
+  }
+
+  static Future insert(String name, String amount, bool _isIncome, String date,
+      String month) async {
+    if (_worksheet == null) return;
+    transactnum++;
+    currentTransact.add(
+        [name, amount, _isIncome == true ? 'income' : 'expense', date, month]);
+    await _worksheet!.values.appendRow([
+      name,
+      amount,
+      _isIncome == true ? 'income' : 'expense',
+      date,
+      month,
+    ]);
+  }
+
+  static double calculateincome() {
+    double income = 0;
+    for (int i = 0; i < currentTransact.length; i++) {
+      if (currentTransact[i][2] == 'income') {
+        income += double.parse(currentTransact[i][1]);
+      }
+    }
+    return income;
+  }
+
+  static double calculateexpence() {
+    double expense = 0;
+    for (int i = 0; i < currentTransact.length; i++) {
+      if (currentTransact[i][2] == 'expense') {
+        expense += double.parse(currentTransact[i][1]);
+      }
+    }
+    return expense;
+  }
+
+  static double calculatebalance() {
+    double income = calculateincome();
+    double expense = calculateexpence();
+    double Balance = income - expense;
+    return Balance;
+  }
+
+  static double calculateMonthlyTransact(String i) {
+    double spend = 0;
+
+    for (int j = 0; j < currentTransact.length; j++) {
+      if (currentTransact[j][3] == i) {
+        print(currentTransact[j][3]);
+        spend += double.parse(currentTransact[j][1]);
+      }
+    }
+    return spend;
   }
 }

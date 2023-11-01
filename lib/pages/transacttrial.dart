@@ -4,11 +4,16 @@ class MyTransaction extends StatelessWidget {
   final String transactionName;
   final String money;
   final String expenseOrIncome;
+  final String date;
+  final String month;
 
-  MyTransaction({
+  const MyTransaction({
+    super.key,
     required this.transactionName,
     required this.money,
     required this.expenseOrIncome,
+    required this.date,
+    required this.month,
   });
 
   @override
@@ -43,6 +48,16 @@ class MyTransaction extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[700],
+                      )),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Text('$date - $month -2023',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: expenseOrIncome == 'expense'
+                            ? Colors.red
+                            : Colors.green,
                       )),
                 ],
               ),

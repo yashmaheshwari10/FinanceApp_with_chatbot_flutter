@@ -1,4 +1,5 @@
 import 'package:edi/Auth/googlesheet_api.dart';
+import 'package:edi/navigation/bottomnavbar.dart';
 import 'package:edi/pages/addspendd.dart';
 import 'package:edi/pages/welcomepage.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ const spreadsheetid = '1ByNKMtSmRaQ3XtijBLP4hFwmyVhIbwhqx-4e1NdZkZ4';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  GoogleSheetsApi().init();
 
   runApp(const MainApp());
 }
@@ -24,7 +26,7 @@ class MainApp extends StatelessWidget {
           textTheme: GoogleFonts.ralewayTextTheme(
         Theme.of(context).textTheme,
       )),
-      home: AddSpend(),
+      home: Navigationpage(),
     );
   }
 }
