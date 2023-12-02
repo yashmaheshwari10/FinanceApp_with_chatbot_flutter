@@ -1,10 +1,12 @@
-import 'dart:ffi';
-
 import 'package:edi/Auth/googlesheet_api.dart';
+import 'package:edi/bar_graph/bar_graph.dart';
 import 'package:edi/widgets/loading_circle.dart';
 import 'package:flutter/material.dart';
 import 'transactions.dart';
 import 'dart:async';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
+import 'package:quiver/time.dart';
 
 class AddSpend extends StatefulWidget {
   AddSpend({super.key});
@@ -20,48 +22,8 @@ class _AddSpendState extends State<AddSpend> {
   double income = GoogleSheetsApi.calculateincome();
   double expense = GoogleSheetsApi.calculateexpence();
   bool timerHasStarted = false;
-
-  void newtransaction() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return StatefulBuilder(
-            builder: (BuildContext context, setState) {
-              return AlertDialog(
-                  title: Text(
-                    'Add Transaction',
-                  ),
-                  content: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Text('Expence'),
-                            Switch(
-                                value: _isIncome,
-                                onChanged: (newvalue) {
-                                  setState(() {
-                                    _isIncome = newvalue;
-                                  });
-                                }),
-                            Text('Income'),
-                          ],
-                        ),
-                        TextFormField(
-                            decoration: InputDecoration(
-                          hintText: 'Amount',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10)),
-                        )),
-                      ],
-                    ),
-                  ));
-              ;
-            },
-          );
-        });
-  }
+  double maxYgraph = 0;
+  var date = DateTime.now();
 
   void refresh() {
     setState(() {});
@@ -111,6 +73,11 @@ class _AddSpendState extends State<AddSpend> {
       print(i);
       setState(() {
         monthlyExp[i] = GoogleSheetsApi.calculateMonthlyTransact(i.toString());
+        if (monthlyExp[i] > maxYgraph) {
+          setState(() {
+            maxYgraph = monthlyExp[i];
+          });
+        }
       });
     }
   }
@@ -127,11 +94,41 @@ class _AddSpendState extends State<AddSpend> {
 
   @override
   Widget build(BuildContext context) {
+    print(date.weekday);
+    int monday = date.day - date.weekday;
+    if (monday < 0) {
+      int monthdays = daysInMonth(date.year, date.month - 1);
+      monday = (monthdays - date.day) + date.day - 1;
+    }
+    int tuesday = monday + 1;
+    if (tuesday > daysInMonth(date.year, date.month - 1)) {
+      tuesday = tuesday - daysInMonth(date.year, date.month - 1);
+    }
+    int wednesday = monday + 2;
+    if (wednesday > daysInMonth(date.year, date.month - 1)) {
+      wednesday = wednesday - daysInMonth(date.year, date.month - 1);
+    }
+    int thursday = monday + 3;
+    if (thursday > daysInMonth(date.year, date.month - 1)) {
+      thursday = thursday - daysInMonth(date.year, date.month - 1);
+    }
+    int friday = monday + 4;
+    if (friday > daysInMonth(date.year, date.month - 1)) {
+      friday = friday - daysInMonth(date.year, date.month - 1);
+    }
+    int saturday = monday + 5;
+    if (saturday > daysInMonth(date.year, date.month - 1)) {
+      saturday = saturday - daysInMonth(date.year, date.month - 1);
+    }
+    int sunday = monday + 6;
+    if (sunday > daysInMonth(date.year, date.month - 1)) {
+      sunday = sunday - daysInMonth(date.year, date.month - 1);
+    }
+    print(monday);
     if (GoogleSheetsApi.loading == true && timerHasStarted == false) {
       startLoading();
     }
     calcexpences();
-    double balance = income - expense;
     return Container(
       constraints: const BoxConstraints.expand(),
       decoration: const BoxDecoration(
@@ -139,66 +136,6 @@ class _AddSpendState extends State<AddSpend> {
               image: AssetImage("assets/images/backg.png"), fit: BoxFit.fill)),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        // bottomNavigationBar: BottomAppBar(
-        //   shape: CircularNotchedRectangle(),
-        //   notchMargin: 10,
-        //   child: Container(
-        //     height: 60,
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //       children: <Widget>[
-        //         Row(
-        //           crossAxisAlignment: CrossAxisAlignment.start,
-        //           children: [
-        //             MaterialButton(
-        //               onPressed: () {},
-        //               child: Column(
-        //                 mainAxisAlignment: MainAxisAlignment.center,
-        //                 children: [Icon(Icons.home)],
-        //               ),
-        //             ),
-        //             MaterialButton(
-        //               onPressed: () {
-        //                 Navigator.push(
-        //                     context,
-        //                     MaterialPageRoute(
-        //                         builder: (context) => TrasactionsPage()));
-        //               },
-        //               child: Column(
-        //                 mainAxisAlignment: MainAxisAlignment.center,
-        //                 children: [Icon(Icons.monetization_on)],
-        //               ),
-        //             ),
-        //             SizedBox(
-        //               width: 40,
-        //             ),
-        //             MaterialButton(
-        //               onPressed: () {},
-        //               child: Column(
-        //                 mainAxisAlignment: MainAxisAlignment.center,
-        //                 children: [Icon(Icons.people)],
-        //               ),
-        //             ),
-        //             MaterialButton(
-        //               onPressed: () {},
-        //               child: Column(
-        //                 mainAxisAlignment: MainAxisAlignment.center,
-        //                 children: [Icon(Icons.chat)],
-        //               ),
-        //             ),
-        //           ],
-        //         )
-        //       ],
-        //     ),
-        //   ),
-        // ),
-        // floatingActionButton: FloatingActionButton(
-        //   onPressed: () {
-        //     newtransaction();
-        //   },
-        //   child: Icon(Icons.add_circle),
-        // ),
-        // floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         body: Column(
           children: [
             SizedBox(
@@ -310,10 +247,48 @@ class _AddSpendState extends State<AddSpend> {
             SizedBox(
               height: 50,
             ),
-            Text(
-              "Weekly Spend",
-              style: TextStyle(fontSize: 26),
+            Row(
+              children: [
+                SizedBox(
+                  width: 110,
+                ),
+                Text(
+                  "Weekly Spend",
+                  style: TextStyle(fontSize: 26),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                IconButton(onPressed: calcexpences, icon: Icon(Icons.refresh))
+              ],
             ),
+            SizedBox(
+              height: 20,
+            ),
+            SizedBox(
+              height: 230,
+              child: GoogleSheetsApi.loading == true
+                  ? LoadingCircle()
+                  : BarGraph(
+                      maxY: maxYgraph,
+                      monday: monday,
+                      tuesday: tuesday,
+                      wednesday: wednesday,
+                      thursday: thursday,
+                      friday: friday,
+                      sat: saturday,
+                      sun: sunday,
+                      weeklysummary: [
+                        monthlyExp[monday],
+                        monthlyExp[tuesday],
+                        monthlyExp[wednesday],
+                        monthlyExp[thursday],
+                        monthlyExp[friday],
+                        monthlyExp[saturday],
+                        monthlyExp[sunday],
+                      ],
+                    ),
+            )
           ],
         ),
       ),

@@ -7,14 +7,16 @@ environment:
   sdk: '>=3.0.6 <4.0.0'
 
 dependencies:
-  chat_gpt_sdk: ^2.2.5
+  chat_gpt_sdk: 
   firebase_auth: ^4.10.0
   firebase_core: ^2.16.0
   fl_chart: ^0.64.0
   flutter:
     sdk: flutter
+  flutter_slidable: ^3.0.1
   google_fonts: ^6.0.0
   gsheets: ^0.5.0
+  quiver: ^3.2.1
   velocity_x: ^4.1.1
 
 dev_dependencies:

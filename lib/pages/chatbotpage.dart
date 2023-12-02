@@ -15,12 +15,12 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messagecontroller = TextEditingController();
   final List<ChatMessages> _messages = [];
-  late OpenAI? chatGPT;
+  late OpenAI chatGPT;
 
   @override
   void initState() {
     chatGPT = OpenAI.instance.build(
-      token: "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",
+      token: "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",
     );
     super.initState();
   }
@@ -39,20 +39,28 @@ class _ChatPageState extends State<ChatPage> {
     });
 
     _messagecontroller.clear();
-    final request = CompleteText(prompt: _message.text, model: BabbageModel());
-
+    final request = CompleteText(
+        prompt: _message.text, model: TextDavinci3Model(), maxTokens: 200);
+    //     ChatCompleteText(messages: [
+    //   Messages(role: Role.assistant, content: 'Hello!'),
+    // ], model: GptTurbo0631Model());
     //final request = CompleteText(prompt: _message.text, model: Gpt4ChatModel(),maxTokens: 200);
-    final response = await chatGPT!.onCompletion(request: request);
-    Vx.log(response!.choices[0].toString());
-    insertNewData(response.choices[0].toString(), isImage: false);
+    final response = await chatGPT.onCompletion(request: request);
+    print(response);
+    // Vx.log(response!.choices[0].toString());
+    Vx.log(response!.choices[0].text);
+    insertNewData(response.choices[0].text);
   }
 
-  void insertNewData(String response, {bool isImage = false}) {
-    ChatMessages botMessage = ChatMessages(
+  void insertNewData(String response) {
+    ChatMessages resp = ChatMessages(
       text: response,
       sender: "bot",
-      isImage: isImage,
+      isImage: false,
     );
+    setState(() {
+      _messages.insert(0, resp);
+    });
   }
 
   Widget textComposer() {

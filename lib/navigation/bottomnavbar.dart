@@ -12,6 +12,8 @@ class Navigationpage extends StatefulWidget {
 }
 
 class _NavigationpageState extends State<Navigationpage> {
+  Object? value;
+
   int tab = 0;
   Widget CurrentScreen = AddSpend();
   final _textcontrollerAMOUNT = TextEditingController();
@@ -26,7 +28,7 @@ class _NavigationpageState extends State<Navigationpage> {
     String month = now.month.toString();
 
     GoogleSheetsApi.insert(
-      _textcontrollerITEM.text,
+      value.toString(),
       _textcontrollerAMOUNT.text,
       _isIncome,
       date,
@@ -34,6 +36,17 @@ class _NavigationpageState extends State<Navigationpage> {
     );
     setState(() {});
   }
+
+  List items = [
+    'enter transaction',
+    'Food',
+    'Housing',
+    'Entertainment',
+    'Luxary',
+    'Studies',
+    'Investments',
+    'Other'
+  ];
 
   void _newTransaction() {
     showDialog(
@@ -71,6 +84,7 @@ class _NavigationpageState extends State<Navigationpage> {
                             child: Form(
                               key: _formKey,
                               child: TextFormField(
+                                keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
                                   hintText: 'Amount?',
@@ -93,14 +107,23 @@ class _NavigationpageState extends State<Navigationpage> {
                       Row(
                         children: [
                           Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'For what?',
-                              ),
-                              controller: _textcontrollerITEM,
-                            ),
-                          ),
+                              child: DropdownButton(
+                            hint: Text('What for?'),
+                            value: value,
+                            onChanged: (newValue) {
+                              setState(
+                                () {
+                                  value = newValue;
+                                },
+                              );
+                            },
+                            items: items.map((valueItem) {
+                              return DropdownMenuItem(
+                                value: valueItem,
+                                child: Text(valueItem),
+                              );
+                            }).toList(),
+                          )),
                         ],
                       ),
                     ],
@@ -150,104 +173,114 @@ class _NavigationpageState extends State<Navigationpage> {
           child: Container(
             color: Colors.grey[900],
             height: 60,
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Center(),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              children: [
+                SizedBox(height: 1.5),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Center(),
-                      MaterialButton(
-                        onPressed: (() {
-                          setState(() {
-                            CurrentScreen = AddSpend();
-                            tab = 0;
-                          });
-                        }),
-                        child: Column(children: [
-                          Icon(
-                            Icons.home,
-                            color: tab == 0 ? Colors.blue : Colors.white,
-                            size: 25,
-                          ),
-                          Text(
-                            'home',
-                            style: TextStyle(
-                              color: tab == 0 ? Colors.blue : Colors.white,
+                      Center(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MaterialButton(
+                              onPressed: (() {
+                                setState(() {
+                                  CurrentScreen = AddSpend();
+                                  tab = 0;
+                                });
+                              }),
+                              child: Column(children: [
+                                Icon(
+                                  Icons.home,
+                                  color: tab == 0 ? Colors.blue : Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  'home',
+                                  style: TextStyle(
+                                    color:
+                                        tab == 0 ? Colors.blue : Colors.white,
+                                  ),
+                                )
+                              ]),
                             ),
-                          )
-                        ]),
-                      ),
-                      MaterialButton(
-                        onPressed: (() {
-                          setState(() {
-                            CurrentScreen = TrasactionsPage();
-                            tab = 1;
-                          });
-                        }),
-                        child: Column(children: [
-                          Icon(
-                            Icons.monetization_on,
-                            color: tab == 1 ? Colors.blue : Colors.white,
-                            size: 25,
-                          ),
-                          Text(
-                            'trasactions',
-                            style: TextStyle(
-                              color: tab == 1 ? Colors.blue : Colors.white,
+                            MaterialButton(
+                              onPressed: (() {
+                                setState(() {
+                                  CurrentScreen = TrasactionsPage();
+                                  tab = 1;
+                                });
+                              }),
+                              child: Column(children: [
+                                Icon(
+                                  Icons.monetization_on,
+                                  color: tab == 1 ? Colors.blue : Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  'trasactions',
+                                  style: TextStyle(
+                                    color:
+                                        tab == 1 ? Colors.blue : Colors.white,
+                                  ),
+                                )
+                              ]),
                             ),
-                          )
-                        ]),
-                      ),
-                      SizedBox(
-                        width: 15,
-                      ),
-                      MaterialButton(
-                        onPressed: (() {
-                          setState(() {
-                            CurrentScreen = AddSpend();
-                            tab = 2;
-                          });
-                        }),
-                        child: Column(children: [
-                          Icon(
-                            Icons.monetization_on,
-                            color: tab == 2 ? Colors.blue : Colors.white,
-                            size: 25,
-                          ),
-                          Text(
-                            'family',
-                            style: TextStyle(
-                              color: tab == 2 ? Colors.blue : Colors.white,
+                            SizedBox(
+                              width: 15,
                             ),
-                          )
-                        ]),
-                      ),
-                      MaterialButton(
-                        onPressed: (() {
-                          setState(() {
-                            CurrentScreen = ChatPage();
-                            tab = 3;
-                          });
-                        }),
-                        child: Column(children: [
-                          Icon(
-                            Icons.chat,
-                            color: tab == 3 ? Colors.blue : Colors.white,
-                            size: 25,
-                          ),
-                          Text(
-                            'chatbot',
-                            style: TextStyle(
-                              color: tab == 3 ? Colors.blue : Colors.white,
+                            MaterialButton(
+                              onPressed: (() {
+                                setState(() {
+                                  CurrentScreen =
+                                      SingleChildScrollView(child: AddSpend());
+                                  tab = 2;
+                                });
+                              }),
+                              child: Column(children: [
+                                Icon(
+                                  Icons.monetization_on,
+                                  color: tab == 2 ? Colors.blue : Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  'family',
+                                  style: TextStyle(
+                                    color:
+                                        tab == 2 ? Colors.blue : Colors.white,
+                                  ),
+                                )
+                              ]),
                             ),
-                          )
-                        ]),
+                            MaterialButton(
+                              onPressed: (() {
+                                setState(() {
+                                  CurrentScreen = ChatPage();
+                                  tab = 3;
+                                });
+                              }),
+                              child: Column(children: [
+                                Icon(
+                                  Icons.chat,
+                                  color: tab == 3 ? Colors.blue : Colors.white,
+                                  size: 25,
+                                ),
+                                Text(
+                                  'chatbot',
+                                  style: TextStyle(
+                                    color:
+                                        tab == 3 ? Colors.blue : Colors.white,
+                                  ),
+                                )
+                              ]),
+                            )
+                          ],
+                        ),
                       )
-                    ],
-                  )
-                ]),
+                    ]),
+              ],
+            ),
           )),
     );
   }

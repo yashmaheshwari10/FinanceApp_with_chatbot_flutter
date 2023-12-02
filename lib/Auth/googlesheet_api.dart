@@ -25,7 +25,7 @@ class GoogleSheetsApi {
   static List<List<dynamic>> currentTransact = [];
   static bool loading = true;
 
-  Future init() async {
+  static Future init() async {
     final ss = await gsheets.spreadsheet(spreadsheetid);
     _worksheet = ss.worksheetByTitle('Sheet1');
     countrows();
@@ -53,6 +53,8 @@ class GoogleSheetsApi {
           await _worksheet!.values.value(column: 4, row: i + 1);
       final String transactionMonth =
           await _worksheet!.values.value(column: 5, row: i + 1);
+      final String transactionNum =
+          await _worksheet!.values.value(column: 5, row: i + 1);
 
       if (currentTransact.length < transactnum) {
         currentTransact.add([
@@ -61,6 +63,7 @@ class GoogleSheetsApi {
           transactionType,
           transactionDate,
           transactionMonth,
+          transactionNum,
         ]);
       }
     }
@@ -81,6 +84,7 @@ class GoogleSheetsApi {
       _isIncome == true ? 'income' : 'expense',
       date,
       month,
+      transactnum - 1,
     ]);
   }
 
@@ -121,5 +125,18 @@ class GoogleSheetsApi {
       }
     }
     return spend;
+  }
+
+  static Future update(int index, String name, String amount, bool _isIncome,
+      String date, String month) async {
+    if (_worksheet == null) return;
+    updateval(amount, index);
+    return _worksheet!.values.insertValue(name, column: 1, row: index);
+  }
+
+  static Future updateval(String amount, int index) async {
+    if (_worksheet == null) return;
+
+    return _worksheet!.values.insertValue(amount, column: 2, row: index);
   }
 }

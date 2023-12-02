@@ -11,7 +11,7 @@ const spreadsheetid = '1ByNKMtSmRaQ3XtijBLP4hFwmyVhIbwhqx-4e1NdZkZ4';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  GoogleSheetsApi().init();
+  GoogleSheetsApi.init();
 
   runApp(const MainApp());
 }
